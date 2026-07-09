@@ -91,9 +91,11 @@
       <div class="form-card reveal">
         <span class="kicker">📋 Soumission en 2 minutes</span>
         <h2 class="h-big" style="margin-bottom: 10px;">Décrivez votre <span class="grad-text">projet</span></h2>
-        <p style="color: var(--text-dim); margin-bottom: 32px;">Remplissez le formulaire : votre courriel s'ouvre avec la demande déjà rédigée, prête à envoyer. C'est quelqu'un de l'équipe qui vous rappelle — pas un répondeur — en moins de 24 h ouvrables.</p>
+        <p style="color: var(--text-dim); margin-bottom: 32px;">Remplissez le formulaire : votre demande arrive directement dans notre système et vous recevez un accusé de réception par courriel. C'est quelqu'un de l'équipe qui vous rappelle — pas un répondeur — en moins de 24 h ouvrables.</p>
 
         <form id="quoteForm">
+          <!-- Champ piège anti-spam : invisible pour les humains, les robots le remplissent -->
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position: absolute; left: -9999px; height: 0; width: 0; opacity: 0;" />
           <div class="form-grid">
             <div class="form-field">
               <label for="f-nom">Votre nom</label>

@@ -338,28 +338,63 @@ if (stage) {
 }
 
 // ============================================
-// Contact form → prefilled email
+// Contact form → BâtiCRM (webhook d'intake des leads)
 // ============================================
 
 const quoteForm = document.getElementById("quoteForm");
 if (quoteForm) {
-  quoteForm.addEventListener("submit", (e) => {
+  const LEAD_WEBHOOK = "https://baticrm.ca/api/leads/9464866e77571d450688eb09c65b4ffc85dea9229862453e";
+
+  quoteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = new FormData(quoteForm);
-    const subject = `Demande de soumission — ${f.get("urgence")} — ${f.get("ville")}`;
-    const body = [
-      `Nom : ${f.get("nom")}`,
-      `Téléphone : ${f.get("tel")}`,
-      `Courriel : ${f.get("courriel")}`,
-      `Ville : ${f.get("ville")}`,
-      `Niveau d'urgence : ${f.get("urgence")}`,
-      ``,
-      `Description du problème :`,
-      f.get("message"),
-    ].join("\n");
-    window.location.href =
-      `mailto:contact@gciconstruction.ca?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     const btn = quoteForm.querySelector("button[type=submit]");
-    btn.textContent = "Votre courriel s'ouvre… 📨";
+
+    // Payload aligné sur les champs reconnus par le CRM (nom, courriel, tel,
+    // ville, service, message + honeypot "website").
+    const payload = new FormData();
+    payload.set("nom", f.get("nom") || "");
+    payload.set("courriel", f.get("courriel") || "");
+    payload.set("tel", f.get("tel") || "");
+    payload.set("ville", f.get("ville") || "");
+    payload.set("service", `Plomberie — ${f.get("urgence") || "demande web"}`);
+    payload.set("message", `${f.get("message") || ""}\n\n[Source : infoplomberie.ca]`);
+    payload.set("website", f.get("website") || "");
+
+    btn.disabled = true;
+    btn.textContent = "Envoi en cours…";
+
+    try {
+      // mode no-cors : requête « simple », livrée au CRM sans préflight.
+      await fetch(LEAD_WEBHOOK, { method: "POST", body: payload, mode: "no-cors" });
+      quoteForm.innerHTML = `
+        <div style="text-align: center; padding: 32px 8px;">
+          <div style="font-size: 3rem; margin-bottom: 16px;">✅</div>
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 12px;">Demande reçue!</h3>
+          <p style="color: var(--text-dim); max-width: 460px; margin: 0 auto;">
+            Vous recevrez un accusé de réception par courriel dans quelques instants.
+            Quelqu'un de l'équipe vous rappelle en moins de 24&nbsp;h ouvrables.
+            Urgence? <a href="${PHONE_TEL}" style="color: var(--cyan); font-weight: 700;">${PHONE_DISPLAY}</a>
+          </p>
+        </div>`;
+      quoteForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch {
+      // Panne réseau : on retombe sur le courriel prérempli pour ne perdre aucun lead.
+      const subject = `Demande de soumission — ${f.get("urgence")} — ${f.get("ville")}`;
+      const body = [
+        `Nom : ${f.get("nom")}`,
+        `Téléphone : ${f.get("tel")}`,
+        `Courriel : ${f.get("courriel")}`,
+        `Ville : ${f.get("ville")}`,
+        `Niveau d'urgence : ${f.get("urgence")}`,
+        ``,
+        `Description du problème :`,
+        f.get("message"),
+      ].join("\n");
+      window.location.href =
+        `mailto:contact@gciconstruction.ca?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      btn.disabled = false;
+      btn.textContent = "Envoyer ma demande 📨";
+    }
   });
 }
