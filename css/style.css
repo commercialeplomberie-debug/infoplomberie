@@ -868,6 +868,7 @@ footer {
   position: relative;
   overflow: hidden;
   min-height: 380px;
+  scroll-margin-top: calc(var(--nav-h) + 20px);
 }
 
 .wiz-step-label {

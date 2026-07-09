@@ -280,6 +280,30 @@ if (stage) {
     },
   ];
 
+  // ---- Stabilité visuelle entre les étapes ----
+  const wiz = stage.closest(".wiz") || stage;
+
+  // La boîte garde la hauteur de la vue la plus haute déjà affichée :
+  // changer d'étape ne fait plus sauter la mise en page.
+  const lockHeight = () => {
+    const h = stage.offsetHeight;
+    const cur = parseFloat(stage.style.minHeight) || 0;
+    if (h > cur) stage.style.minHeight = h + "px";
+  };
+
+  // Si le haut du diagnostic est sorti de l'écran (grille haute sur mobile),
+  // on ramène doucement la vue au même point de repère à chaque étape.
+  const realign = () => {
+    if (wiz.getBoundingClientRect().top < 70) {
+      wiz.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  window.addEventListener("resize", () => {
+    stage.style.minHeight = "";
+    lockHeight();
+  });
+
   const renderTiles = () => {
     stage.innerHTML = `
       <div class="wiz-anim">
@@ -297,6 +321,8 @@ if (stage) {
         p.q ? renderQuestion(p) : renderResult(p.r);
       })
     );
+    lockHeight();
+    realign();
   };
 
   const renderQuestion = (p) => {
@@ -316,6 +342,8 @@ if (stage) {
       b.addEventListener("click", () => renderResult(p.opts[+b.dataset.i].r))
     );
     stage.querySelector(".wiz-back").addEventListener("click", renderTiles);
+    lockHeight();
+    realign();
   };
 
   const renderResult = (r) => {
@@ -332,6 +360,8 @@ if (stage) {
         <button class="wiz-back">↺ Recommencer le diagnostic</button>
       </div>`;
     stage.querySelector(".wiz-back").addEventListener("click", renderTiles);
+    lockHeight();
+    realign();
   };
 
   renderTiles();
