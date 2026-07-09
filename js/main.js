@@ -397,17 +397,7 @@ if (quoteForm) {
     try {
       // mode no-cors : requête « simple », livrée au CRM sans préflight.
       await fetch(LEAD_WEBHOOK, { method: "POST", body: payload, mode: "no-cors" });
-      quoteForm.innerHTML = `
-        <div style="text-align: center; padding: 32px 8px;">
-          <div style="font-size: 3rem; margin-bottom: 16px;">✅</div>
-          <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 12px;">Demande reçue!</h3>
-          <p style="color: var(--text-dim); max-width: 460px; margin: 0 auto;">
-            Vous recevrez un accusé de réception par courriel dans quelques instants.
-            Quelqu'un de l'équipe vous rappelle en moins de 24&nbsp;h ouvrables.
-            Urgence? <a href="${PHONE_TEL}" style="color: var(--cyan); font-weight: 700;">${PHONE_DISPLAY}</a>
-          </p>
-        </div>`;
-      quoteForm.scrollIntoView({ behavior: "smooth", block: "center" });
+      window.location.href = "merci.html";
     } catch {
       // Panne réseau : on retombe sur le courriel prérempli pour ne perdre aucun lead.
       const subject = `Demande de soumission — ${f.get("urgence")} — ${f.get("ville")}`;
