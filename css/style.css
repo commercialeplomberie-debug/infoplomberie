@@ -518,6 +518,66 @@ h1, h2, h3, h4 {
 
 .sos-step b { color: var(--hot); font-family: var(--font-display); font-weight: 800; white-space: nowrap; }
 
+/* ---------- Étapes horizontales (page merci) ---------- */
+
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.steps-row .step {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 22px 20px;
+  box-shadow: 0 2px 10px rgba(35, 48, 58, 0.05);
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--grad-main);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.steps-row .step h3 { font-size: 1.02rem; margin-bottom: 8px; }
+
+.steps-row .step p { font-size: 0.92rem; color: var(--text-dim); line-height: 1.6; }
+
+.steps-row .step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -19px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--border-hot);
+  font-size: 1.35rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+@media (max-width: 720px) {
+  .steps-row { grid-template-columns: 1fr; gap: 26px; }
+  .steps-row .step:not(:last-child)::after {
+    content: "↓";
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: -25px;
+    transform: translateX(-50%);
+  }
+}
+
 /* ---------- Infolettre ---------- */
 
 .newsletter {
@@ -889,11 +949,13 @@ footer .nav-logo em { color: #d99a6c; }
   display: block;
 }
 
-.wiz-anim { animation: wizin 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+/* Fondu sans déplacement : des boutons qui bougent pendant l'animation
+   font rater le premier tap sur mobile */
+.wiz-anim { animation: wizin 0.3s ease-out; }
 
 @keyframes wizin {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .wiz-tiles {
@@ -920,11 +982,15 @@ footer .nav-logo em { color: #d99a6c; }
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.wiz-tile:hover {
-  transform: translateY(-3px);
-  border-color: var(--border-hot);
-  box-shadow: 0 10px 24px rgba(35, 48, 58, 0.1);
+@media (hover: hover) {
+  .wiz-tile:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-hot);
+    box-shadow: 0 10px 24px rgba(35, 48, 58, 0.1);
+  }
 }
+
+.wiz-tile:active { border-color: var(--border-hot); }
 
 .wiz-tile .em { font-size: 1.8rem; }
 
@@ -948,7 +1014,11 @@ footer .nav-logo em { color: #d99a6c; }
   transition: transform 0.2s, border-color 0.2s;
 }
 
-.wiz-opt:hover { border-color: var(--border-hot); transform: translateX(5px); }
+@media (hover: hover) {
+  .wiz-opt:hover { border-color: var(--border-hot); transform: translateX(5px); }
+}
+
+.wiz-opt:active { border-color: var(--border-hot); }
 .wiz-opt .em { font-size: 1.3rem; }
 
 .wiz-back {

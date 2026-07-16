@@ -326,10 +326,12 @@ if (stage) {
   };
 
   // Si le haut du diagnostic est sorti de l'écran (grille haute sur mobile),
-  // on ramène doucement la vue au même point de repère à chaque étape.
+  // on ramène la vue au même point de repère à chaque étape. Recadrage
+  // instantané : un défilement animé ferait bouger les boutons sous le doigt,
+  // et le tap serait annulé (il fallait cliquer deux fois sur mobile).
   const realign = () => {
     if (wiz.getBoundingClientRect().top < 70) {
-      wiz.scrollIntoView({ behavior: "smooth", block: "start" });
+      wiz.scrollIntoView({ behavior: "auto", block: "start" });
     }
   };
 
