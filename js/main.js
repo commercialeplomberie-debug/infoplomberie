@@ -44,6 +44,17 @@ const observer = new IntersectionObserver(
 
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
+// Tableaux de prix : copie les en-têtes en étiquettes data-label
+// pour l'affichage empilé sur mobile (voir style.css ≤ 620 px)
+document.querySelectorAll(".price-table").forEach((table) => {
+  const heads = [...table.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+  table.querySelectorAll("tbody tr").forEach((tr) => {
+    [...tr.children].forEach((td, i) => {
+      if (heads[i]) td.setAttribute("data-label", heads[i]);
+    });
+  });
+});
+
 // Card cursor glow
 document.querySelectorAll(".card").forEach((card) => {
   card.addEventListener("mousemove", (e) => {
@@ -72,15 +83,38 @@ if (progress) {
   }, { passive: true });
 }
 
-// Newsletter form
+// Intake BâtiCRM — partagé par le formulaire de contact et l'infolettre
+const LEAD_WEBHOOK = "https://baticrm.ca/api/leads/9464866e77571d450688eb09c65b4ffc85dea9229862453e";
+
+// Newsletter form → BâtiCRM (même intake que le formulaire de contact)
 const newsForm = document.querySelector(".news-form");
 if (newsForm) {
-  newsForm.addEventListener("submit", (e) => {
+  newsForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = newsForm.querySelector("button");
-    btn.textContent = "Merci! 💧";
+    const input = newsForm.querySelector("input");
+    const courriel = input.value.trim();
+    if (!courriel) return;
+
+    const payload = new FormData();
+    payload.set("nom", "Abonnement infolettre");
+    payload.set("courriel", courriel);
+    payload.set("service", "Infolettre — abonnement");
+    payload.set("message", "Nouvel abonné à l'infolettre.\n\n[Source : infoplomberie.ca — infolettre]");
+    payload.set("website", "");
+
     btn.disabled = true;
-    newsForm.querySelector("input").value = "";
+    btn.textContent = "Inscription…";
+    try {
+      await fetch(LEAD_WEBHOOK, { method: "POST", body: payload, mode: "no-cors" });
+      btn.textContent = "Abonné! 💧 À bientôt";
+      input.value = "";
+    } catch {
+      btn.disabled = false;
+      btn.textContent = "Réessayer";
+      window.location.href =
+        `mailto:contact@gciconstruction.ca?subject=${encodeURIComponent("Abonnement infolettre")}&body=${encodeURIComponent("Abonnez-moi à l'infolettre : " + courriel)}`;
+    }
   });
 }
 
@@ -373,8 +407,6 @@ if (stage) {
 
 const quoteForm = document.getElementById("quoteForm");
 if (quoteForm) {
-  const LEAD_WEBHOOK = "https://baticrm.ca/api/leads/9464866e77571d450688eb09c65b4ffc85dea9229862453e";
-
   quoteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = new FormData(quoteForm);
